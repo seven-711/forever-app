@@ -5,11 +5,11 @@ import { Note, Report, Feedback } from '../types';
 // 🟢 CONFIGURATION SECTION
 // ==================================================================================
 
-// 1. PASTE YOUR PROJECT URL INSIDE THE QUOTES:
-const YOUR_SUPABASE_URL = 'https://xbqdsptcdweteaslhrtp.supabase.co';
+// 1. Get Supabase Project URL from environment variables
+const YOUR_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 
-// 2. PASTE YOUR ANON / PUBLIC KEY INSIDE THE QUOTES:
-const YOUR_SUPABASE_ANON_KEY = 'sb_publishable_QltFhrFMa5Bdy0YdCWbdeA_Q8Utc96X';
+// 2. Get Supabase Anon Key from environment variables
+const YOUR_SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // ==================================================================================
 

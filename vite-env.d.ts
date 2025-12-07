@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_SENDER_NAME: string
   readonly VITE_GEMINI_API_KEY: string
   readonly VITE_GOOGLE_PLACES_API_KEY: string
+  readonly VITE_SUPABASE_URL: string
+  readonly VITE_SUPABASE_ANON_KEY: string
   // Add more environment variables here as needed
 }
 
