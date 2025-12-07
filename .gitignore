@@ -10,6 +10,7 @@ lerna-debug.log*
 
 .env
 .env.local
+vite-env.d.ts
 
 node_modules
 dist
