@@ -556,7 +556,7 @@ const App: React.FC = () => {
 
       {/* Create Memory Button */}
       {!selectedLocation && !isInitialLoading && (
-        <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-[500] pointer-events-auto">
+        <div className="absolute bottom-40 md:bottom-8 left-1/2 -translate-x-1/2 z-[500] pointer-events-auto">
             <button
                 onClick={handleCreateNoteButtonClick}
                 className={`flex items-center gap-2 px-5 py-3 md:px-6 md:py-3.5 rounded-full shadow-xl shadow-purple-900/20 hover:scale-105 active:scale-95 transition-all group ring-4 ring-white/30 text-white ${isAdmin ? 'bg-gradient-to-r from-amber-500 to-orange-600' : 'bg-gradient-to-r from-purple-600 to-indigo-600'}`}
@@ -571,7 +571,7 @@ const App: React.FC = () => {
 
       {/* Random Note Button Container with Hint */}
       {!selectedLocation && !isInitialLoading && notes.length > 0 && (
-        <div className="absolute bottom-6 md:bottom-8 right-4 md:right-8 z-[500] flex flex-col items-end gap-3 pointer-events-none">
+        <div className="absolute bottom-20 md:bottom-8 right-4 md:right-8 z-[500] flex flex-col items-end gap-3 pointer-events-none">
           
           {/* Animated Hint Bubble */}
           {!hasClickedRandom && showRandomHint && (

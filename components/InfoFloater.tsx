@@ -62,7 +62,7 @@ const InfoFloater: React.FC = () => {
            {isOpen ? <X size={18} strokeWidth={2.5} /> : <Info size={18} strokeWidth={2.5} />}
         </div>
         <span className={`font-serif font-bold tracking-wide text-sm transition-colors ${isOpen ? 'text-purple-700' : 'text-slate-700 group-hover:text-purple-700'}`}>
-          {isOpen ? 'Close' : 'About & Safety'}
+          {isOpen ? 'Close' : 'About'}
         </span>
       </button>
 
