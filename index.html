@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forever - Eternalize Your Memories</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <style>
+      /* CRITICAL FIX: Ensure app takes full height */
+      html, body, #root {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Prevent double scrollbars */
+      }
+
+      /* Custom scrollbar for a sleek look */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1; 
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; 
+      }
+      
+      /* Animation for fading in */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+
+      /* Gentle Float Animation for UX Hints */
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
+      .animate-float {
+        animation: float 3s ease-in-out infinite;
+      }
+
+      /* Pop In Animation for Markers */
+      @keyframes popIn {
+        0% { opacity: 0; transform: scale(0) translateY(10px); }
+        70% { transform: scale(1.1) translateY(-5px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      
+      /* Leaflet overrides to match light theme */
+      .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        color: #1e293b;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 16px;
+      }
+      .leaflet-container {
+        background: #f8fafc;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      .leaflet-popup-content {
+        margin: 0;
+        line-height: 1.5;
+      }
+      
+      /* Clustering Styles - Ethereal Memory Orbs */
+      .marker-cluster-custom {
+        background: transparent;
+        border-radius: 50%;
+        
+        /* Centering Fixes: Force flex to override default block and center content */
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        
+        /* Interaction Fixes */
+        cursor: pointer;
+        pointer-events: auto !important;
+        
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      
+      .marker-cluster-custom:hover {
+        transform: scale(1.15);
+        z-index: 1000 !important;
+      }
+
+      /* Pulse animation for clusters */
+      .cluster-pulse-ring {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 50%;
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+        animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        z-index: -1;
+      }
+
+      @keyframes pulse-ring {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        100% { transform: scale(1.5); opacity: 0; }
+      }
+
+      .cluster-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-family: serif;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      /* Inner shine effect */
+      .cluster-inner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          to bottom right,
+          rgba(255, 255, 255, 0.8) 0%,
+          rgba(255, 255, 255, 0) 40%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        transform: rotate(30deg);
+        pointer-events: none;
+      }
+
+      /* Small Cluster */
+      .cluster-small .cluster-inner {
+        background: linear-gradient(135deg, rgba(224, 231, 255, 0.95), rgba(199, 210, 254, 0.95)); /* Indigo 100-200 */
+        color: #4f46e5;
+      }
+
+      /* Medium Cluster */
+      .cluster-medium .cluster-inner {
+        background: linear-gradient(135deg, rgba(233, 213, 255, 0.95), rgba(216, 180, 254, 0.95)); /* Purple 100-300 */
+        color: #7e22ce;
+      }
+
+      /* Large Cluster */
+      .cluster-large .cluster-inner {
+        background: linear-gradient(135deg, rgba(252, 231, 243, 0.95), rgba(249, 168, 212, 0.95)); /* Pink 100-300 */
+        color: #be185d;
+      }
+
+      .cluster-inner span {
+        font-size: 14px;
+        z-index: 2;
+        position: relative; /* Ensure it sits above pseudo-elements */
+      }
+
+      /* Dynamic Spiderfy Explosion */
+      @keyframes spiderExplode {
+        0% {
+          opacity: 0;
+          transform: translate3d(var(--spider-x), var(--spider-y), 0) scale(0.2);
+        }
+        20% {
+            opacity: 1; /* Fade in quickly at source */
+        }
+        100% {
+          opacity: 1;
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+      }
+
+      .spider-marker-animated {
+         /* Uses CSS vars injected by JS for precise origin calculation */
+         animation: spiderExplode 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+         will-change: transform, opacity;
+         opacity: 0; /* Start invisible until animation kicks in */
+      }
+      
+      .spider-leg-line {
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        animation: dash 0.6s ease-out forwards;
+        opacity: 0.4;
+      }
+
+      @keyframes dash {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Text Preview for Spiderfied Markers */
+      .spider-preview-text {
+        position: absolute;
+        top: 42px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255,255,255,0.9);
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #475569;
+        white-space: nowrap;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 1px solid rgba(0,0,0,0.05);
+        pointer-events: none;
+        backdrop-filter: blur(4px);
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        z-index: -1;
+      }
+
+      /* ========================================= */
+      /* 3D GLOBE UI STYLES                        */
+      /* ========================================= */
+
+      /* Globe Cluster Container */
+      .globe-cluster {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: white;
+        font-family: serif;
+        font-weight: 700;
+        cursor: pointer;
+        user-select: none;
+        
+        /* Glassmorphism base */
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, border-color 0.3s;
+        pointer-events: auto !important; /* Vital for 3D interactions */
+      }
+
+      .globe-cluster:hover {
+        transform: scale(1.25);
+        box-shadow: 0 0 25px rgba(255, 255, 255, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.4);
+        z-index: 100;
+        border-color: #fff;
+      }
+
+      /* Inner gradient layer for color */
+      .globe-cluster::before {
+        content: '';
+        position: absolute;
+        inset: 2px;
+        border-radius: 50%;
+        z-index: -1;
+        opacity: 0.9;
+      }
+      
+      /* Ensure text is above background */
+      .globe-cluster span {
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      }
+
+      /* Small Cluster (Blue/Indigo) */
+      .globe-cluster.small::before {
+        background: radial-gradient(circle at 30% 30%, #a5b4fc, #6366f1);
+      }
+      
+      /* Medium Cluster (Purple/Pink) */
+      .globe-cluster.medium::before {
+        background: radial-gradient(circle at 30% 30%, #f0abfc, #c026d3);
+      }
+
+      /* Large Cluster (Rose/Red) */
+      .globe-cluster.large::before {
+        background: radial-gradient(circle at 30% 30%, #fda4af, #e11d48);
+      }
+      
+      /* 3D Marker Styling (Individual Dots) */
+      .globe-marker {
+        border-radius: 50%;
+        border: 1.5px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        cursor: pointer;
+        pointer-events: auto !important;
+        transition: transform 0.2s;
+      }
+      .globe-marker:hover {
+        transform: scale(1.6);
+        box-shadow: 0 0 12px white;
+        z-index: 50;
+      }
+
+      /* MELANCHOLIC INTRO ANIMATIONS */
+      @keyframes melancholicReveal {
+        0% { opacity: 0; filter: blur(12px); transform: scale(1.05); }
+        100% { opacity: 1; filter: blur(0); transform: scale(1); }
+      }
+      
+      .animate-melancholic-in {
+        animation: melancholicReveal 3.5s ease-out forwards;
+      }
+
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "leaflet": "https://aistudiocdn.com/leaflet@^1.9.4",
+    "react-leaflet": "https://esm.sh/react-leaflet@4.2.1?external=react,react-dom,leaflet",
+    "supercluster": "https://esm.sh/supercluster@8.0.1",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.39.0",
+    "react-globe.gl": "https://esm.sh/react-globe.gl@2.27.2?external=react,react-dom"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 text-slate-800 antialiased overflow-hidden selection:bg-purple-200 selection:text-purple-900">
+    <div id="root"></div>
+  </body>
+  <script type="module" src="/index.tsx"></script>
+</html>

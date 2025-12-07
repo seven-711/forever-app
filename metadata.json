@@ -1,0 +1,7 @@
+{
+  "name": "Forever",
+  "description": "An ethereal platform to leave anonymous notes and memories at meaningful locations across the globe. Features AI-enhanced poetic rewriting and privacy-focused sharing.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
