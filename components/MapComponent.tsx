@@ -150,14 +150,14 @@ const MapRevalidator: React.FC<{ is3DMode: boolean }> = ({ is3DMode }) => {
     // This fixes the gray area / missing tiles issue on initial load
     map.invalidateSize();
     
-    // Also invalidate when switching modes
-    if (!is3DMode) {
-        // Slight delay to allow transition to complete or DOM to settle
-        const timer = setTimeout(() => {
-            map.invalidateSize();
-        }, 300);
-        return () => clearTimeout(timer);
-    }
+    // Aggressive invalidation to ensure tiles load correctly if network/rendering was delayed
+    const t1 = setTimeout(() => map.invalidateSize(), 200);
+    const t2 = setTimeout(() => map.invalidateSize(), 800);
+
+    return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+    };
   }, [map, is3DMode]);
 
   return null;
@@ -700,10 +700,24 @@ const MapLayers: React.FC<MapComponentProps & { onZoomChange: (z: number) => voi
   return (
     <>
        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          className="ethereal-tiles"
         />
         
+        {/* Geographic Label Overlay: West Philippine Sea */}
+        <Marker
+          position={[15.0, 116.5]} 
+          icon={L.divIcon({
+            className: 'bg-transparent border-none',
+            html: '<div class="map-label-overlay">West Philippine Sea</div>',
+            iconSize: [260, 40],
+            iconAnchor: [130, 20]
+          })}
+          zIndexOffset={-900} 
+          interactive={false}
+        />
+
         <MapRevalidator is3DMode={is3DMode} />
 
         <MapEvents onMapClick={onLocationSelect} onZoomChange={onZoomChange} />
@@ -881,88 +895,91 @@ const GlobeView: React.FC<{ notes: Note[], onGlobeClick: (lat: number, lng: numb
     };
 
     return (
-        <div className="absolute inset-0 z-10 bg-gradient-to-br from-slate-900 to-indigo-950 animate-fade-in flex items-center justify-center">
+        <div className="absolute inset-0 z-10 bg-gradient-to-br from-slate-900 to-indigo-950 animate-fade-in flex items-center justify-center overflow-hidden">
+            
+             {/* Background Split Title */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-between px-4 md:px-16 lg:px-32 select-none z-0">
+                 <span className="text-[12vw] md:text-[9vw] font-serif font-black text-white/[0.04] tracking-widest uppercase transform scale-y-110">World</span>
+                 <span className="text-[12vw] md:text-[9vw] font-serif font-black text-white/[0.04] tracking-widest uppercase transform scale-y-110">View</span>
+            </div>
+
             <Suspense fallback={
-                <div className="flex flex-col items-center gap-2 text-white/50">
+                <div className="flex flex-col items-center gap-2 text-white/50 relative z-20">
                     <Loader2 className="animate-spin" size={24} />
                     <span className="text-sm font-serif">Loading World View...</span>
                 </div>
             }>
-               <Globe
-                ref={globeEl}
-                // Light Blue Water Sphere
-                globeImageUrl={waterTexture}
-                bumpImageUrl={null}
-                backgroundColor="rgba(0,0,0,0)"
-                
-                // Atmosphere
-                atmosphereColor="#7c3aed" // Purple glow
-                atmosphereAltitude={0.15}
-                
-                // Land (Green Polygons)
-                polygonsData={landPolygons}
-                polygonCapColor={() => '#dcfce7'} // Green-100
-                polygonSideColor={() => 'rgba(0,0,0,0)'}
-                polygonStrokeColor={() => '#86efac'} // Green-300 borders
-                polygonAltitude={0.005}
-                
-                // Using HTML Elements for clusters to match the reference image style
-                htmlElementsData={htmlData}
-                htmlLat={(d: any) => d.lat}
-                htmlLng={(d: any) => d.lng}
-                htmlAltitude={(d: any) => d.alt}
-                htmlElement={(d: any) => {
-                    const el = document.createElement('div');
+               <div className="relative z-10">
+                   <Globe
+                    ref={globeEl}
+                    // Light Blue Water Sphere
+                    globeImageUrl={waterTexture}
+                    bumpImageUrl={null}
+                    backgroundColor="rgba(0,0,0,0)"
                     
-                    // Retain functionality: Add click listener with propagation stop
-                    el.onclick = (e) => {
-                        e.stopPropagation();
-                        handlePointClick(d);
-                    };
-
-                    if (d.isCluster) {
-                        el.className = 'globe-cluster';
-                        // Add size class for gradient logic in CSS
-                        if (d.count > 100) el.classList.add('large');
-                        else if (d.count > 10) el.classList.add('medium');
-                        else el.classList.add('small');
-
-                        el.style.width = `${d.size}px`;
-                        el.style.height = `${d.size}px`;
+                    // Atmosphere
+                    atmosphereColor="#7c3aed" // Purple glow
+                    atmosphereAltitude={0.15}
+                    
+                    // Land (Green Polygons)
+                    polygonsData={landPolygons}
+                    polygonCapColor={() => '#dcfce7'} // Green-100
+                    polygonSideColor={() => 'rgba(0,0,0,0)'}
+                    polygonStrokeColor={() => '#86efac'} // Green-300 borders
+                    polygonAltitude={0.005}
+                    
+                    // Using HTML Elements for clusters to match the reference image style
+                    htmlElementsData={htmlData}
+                    htmlLat={(d: any) => d.lat}
+                    htmlLng={(d: any) => d.lng}
+                    htmlAltitude={(d: any) => d.alt}
+                    htmlElement={(d: any) => {
+                        const el = document.createElement('div');
                         
-                        // Scale font based on size, keeping it readable
-                        el.style.fontSize = `${Math.max(12, d.size * 0.4)}px`;
-                        
-                        // Wrap number in span for z-index layering
-                        const span = document.createElement('span');
-                        span.innerText = d.count > 999 ? '999+' : d.count.toString();
-                        el.appendChild(span);
-                    } else {
-                        el.className = 'globe-marker';
-                        el.style.width = `${d.size}px`;
-                        el.style.height = `${d.size}px`;
-                        el.style.backgroundColor = d.bgColor;
-                    }
+                        // Retain functionality: Add click listener with propagation stop
+                        el.onclick = (e) => {
+                            e.stopPropagation();
+                            handlePointClick(d);
+                        };
 
-                    return el;
-                }}
+                        if (d.isCluster) {
+                            el.className = 'globe-cluster';
+                            // Add size class for gradient logic in CSS
+                            if (d.count > 100) el.classList.add('large');
+                            else if (d.count > 10) el.classList.add('medium');
+                            else el.classList.add('small');
 
-                // General Click
-                onGlobeClick={({ lat, lng }: any) => {
-                    // Just rotate/center
-                    globeEl.current.pointOfView({ lat, lng, altitude: globeEl.current.pointOfView().altitude }, 1000);
-                }}
-                
-                width={window.innerWidth}
-                height={window.innerHeight}
-               />
+                            el.style.width = `${d.size}px`;
+                            el.style.height = `${d.size}px`;
+                            
+                            // Scale font based on size, keeping it readable
+                            el.style.fontSize = `${Math.max(12, d.size * 0.4)}px`;
+                            
+                            // Wrap number in span for z-index layering
+                            const span = document.createElement('span');
+                            span.innerText = d.count > 999 ? '999+' : d.count.toString();
+                            el.appendChild(span);
+                        } else {
+                            el.className = 'globe-marker';
+                            el.style.width = `${d.size}px`;
+                            el.style.height = `${d.size}px`;
+                            el.style.backgroundColor = d.bgColor;
+                        }
+
+                        return el;
+                    }}
+
+                    // General Click
+                    onGlobeClick={({ lat, lng }: any) => {
+                        // Just rotate/center
+                        globeEl.current.pointOfView({ lat, lng, altitude: globeEl.current.pointOfView().altitude }, 1000);
+                    }}
+                    
+                    width={window.innerWidth}
+                    height={window.innerHeight}
+                   />
+               </div>
             </Suspense>
-            
-            {/* Overlay Text */}
-            <div className="absolute top-10 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-                <h2 className="text-white/60 font-serif text-xl tracking-widest uppercase">World View</h2>
-                <p className="text-white/30 text-xs mt-1">Click a cluster to explore memories</p>
-            </div>
         </div>
     );
 };

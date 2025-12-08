@@ -6,7 +6,7 @@ import AdminLoginModal from './components/AdminLoginModal';
 import InfoFloater from './components/InfoFloater';
 import AdminDashboard from './components/AdminDashboard';
 import { Note, Coordinates, PlaceSearchResult, User } from './types';
-import { LogIn, Infinity as InfinityIcon, Shuffle, Search, Loader2, MapPin, X, WifiOff, PenTool, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { LogIn, Infinity as InfinityIcon, Shuffle, Search, Loader2, MapPin, X, WifiOff, PenTool, ShieldCheck, User as UserIcon, Info, BookOpen, Shield, AlertCircle, FileText, MessageSquarePlus, Sparkles, Lightbulb, Bug, Heart, HelpCircle } from 'lucide-react';
 import { suggestLocationName, searchPlaces } from './services/geminiService';
 import { fetchNotes, saveNote, getAdminNotificationCount } from './services/supabaseService';
 
@@ -45,6 +45,8 @@ const App: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<Coordinates | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false); // New state for secret modal
+  const [infoFloaterOpen, setInfoFloaterOpen] = useState(false); // Mobile info floater state
+  const [activeInfoTab, setActiveInfoTab] = useState<'guide' | 'safety' | 'rules' | 'terms' | 'feedback'>('guide');
   
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -315,10 +317,13 @@ const App: React.FC = () => {
       randomNote = notes[randomIndex];
     }
 
+    // Immediate state updates - batch them for faster response
     setActiveNoteId(randomNote.id);
     setSelectedLocation(null); 
     setFocusLocation(null);
     setShowResults(false);
+    
+    // Update URL and title immediately
     updateUrlAndTitle(randomNote.lat, randomNote.lng, randomNote.locationName);
   };
 
@@ -549,50 +554,352 @@ const App: React.FC = () => {
         />
       </div>
 
-      {/* Info/Guide Floater */}
-      <div className="pointer-events-auto">
-        <InfoFloater />
-      </div>
-
-      {/* Create Memory Button */}
-      {!selectedLocation && !isInitialLoading && (
-        <div className="absolute bottom-40 md:bottom-8 left-1/2 -translate-x-1/2 z-[500] pointer-events-auto">
-            <button
-                onClick={handleCreateNoteButtonClick}
-                className={`flex items-center gap-2 px-5 py-3 md:px-6 md:py-3.5 rounded-full shadow-xl shadow-purple-900/20 hover:scale-105 active:scale-95 transition-all group ring-4 ring-white/30 text-white ${isAdmin ? 'bg-gradient-to-r from-amber-500 to-orange-600' : 'bg-gradient-to-r from-purple-600 to-indigo-600'}`}
-            >
-                {isAdmin ? <ShieldCheck size={18} className="fill-white/20" /> : <PenTool size={18} className="fill-white/20" />}
-                <span className="font-bold tracking-wide text-sm md:text-base">
-                    {isAdmin ? 'Leave Admin Note' : 'Leave a Note'}
-                </span>
-            </button>
-        </div>
-      )}
-
-      {/* Random Note Button Container with Hint */}
-      {!selectedLocation && !isInitialLoading && notes.length > 0 && (
-        <div className="absolute bottom-20 md:bottom-8 right-4 md:right-8 z-[500] flex flex-col items-end gap-3 pointer-events-none">
-          
-          {/* Animated Hint Bubble */}
-          {!hasClickedRandom && showRandomHint && (
-             <div className="bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-white/50 animate-float origin-bottom-right mb-1 mr-1 pointer-events-auto relative">
-                 <div className="text-sm font-serif font-semibold text-purple-900/80 whitespace-nowrap">
-                    Drift to a random memory...
-                 </div>
-                 {/* Arrow */}
-                 <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white/80 border-b border-r border-white/50 rotate-45 backdrop-blur-md"></div>
-             </div>
-          )}
-
+      {/* Mobile Button Container - Left Side Block Layout */}
+      <div className="md:hidden fixed left-4 top-1/2 -translate-y-1/2 z-[500] flex flex-col gap-4 pointer-events-none">
+        
+        {/* About Button - Mobile Version */}
+        <div className="pointer-events-auto">
           <button
-            onClick={handleRandomNote}
-            className="pointer-events-auto bg-white text-purple-600 hover:bg-purple-600 hover:text-white p-3.5 md:p-4 rounded-full shadow-xl shadow-purple-900/10 transition-all active:scale-95 group border border-purple-100"
-            title="Drift to a random memory"
+            onClick={() => setInfoFloaterOpen(!infoFloaterOpen)}
+            className={`flex items-center justify-center w-12 h-12 rounded-full shadow-xl shadow-purple-900/20 hover:scale-110 active:scale-95 transition-all duration-300 group ring-4 ring-white/30 relative overflow-hidden ${
+              infoFloaterOpen 
+                ? 'bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 ring-4 ring-purple-200/50 shadow-purple-200/50 scale-105' 
+                : 'bg-white/90 hover:bg-white text-slate-600 hover:text-purple-700 hover:shadow-purple-900/20 hover:ring-purple-100/50'
+            }`}
           >
-            <Shuffle size={22} className="group-hover:rotate-180 transition-transform duration-700 ease-in-out md:w-6 md:h-6" />
+            {/* Subtle gradient overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-br from-purple-400/0 to-purple-600/0 group-hover:from-purple-400/10 group-hover:to-purple-600/10 transition-all duration-300`}></div>
+            
+            {/* Icon container with enhanced animation */}
+            <div className={`relative z-10 transition-all duration-500 ease-out ${infoFloaterOpen ? 'rotate-90 scale-110' : 'group-hover:rotate-12 group-hover:scale-105'}`}>
+              {infoFloaterOpen ? (
+                <X size={20} strokeWidth={2.5} className="drop-shadow-sm" />
+              ) : (
+                <Info size={20} strokeWidth={2.5} className="drop-shadow-sm" />
+              )}
+            </div>
+            
+            {/* Ripple effect on hover */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            {/* Pulse effect when active */}
+            {infoFloaterOpen && (
+              <div className="absolute inset-0 rounded-full bg-purple-400/20 animate-ping"></div>
+            )}
           </button>
         </div>
+        
+        {/* Leave a Note Button */}
+        {!selectedLocation && !isInitialLoading && (
+          <div className="pointer-events-auto">
+            <button
+              onClick={handleCreateNoteButtonClick}
+              className={`flex items-center justify-center w-12 h-12 rounded-full shadow-xl shadow-purple-900/20 hover:scale-105 active:scale-95 transition-all group ring-4 ring-white/30 text-white ${isAdmin ? 'bg-gradient-to-r from-amber-500 to-orange-600' : 'bg-gradient-to-r from-purple-600 to-indigo-600'}`}
+            >
+              {isAdmin ? <ShieldCheck size={20} className="fill-white/20" /> : <PenTool size={20} className="fill-white/20" />}
+            </button>
+          </div>
+        )}
+        
+        {/* Random Note Button */}
+        {!selectedLocation && !isInitialLoading && notes.length > 0 && (
+          <div className="pointer-events-auto">
+            <button
+              onClick={handleRandomNote}
+              className="flex items-center justify-center w-12 h-12 rounded-full shadow-xl shadow-purple-900/20 hover:scale-105 active:scale-95 transition-all group ring-4 ring-white/30 text-white bg-gradient-to-r from-purple-600 to-indigo-600"
+            >
+              <Shuffle size={20} className="fill-white/20" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile InfoFloater Modal */}
+      {infoFloaterOpen && (
+        <div className="md:hidden fixed inset-0 z-[999] animate-fade-in">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            onClick={() => setInfoFloaterOpen(false)}
+          />
+          
+          {/* Floating Modal Content */}
+          <div className="absolute left-4 right-4 top-[58%] -translate-y-1/2 h-[80vh] max-h-[600px] bg-white/95 backdrop-blur-2xl border border-white/60 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-[2rem] overflow-hidden animate-scale-in">
+            {/* Enhanced Header */}
+            <div className="relative h-28 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 shrink-0 overflow-hidden">
+              {/* Abstract Shapes */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+              <div className="absolute top-10 left-10 w-20 h-20 bg-indigo-400/20 rounded-full blur-xl"></div>
+              
+              {/* Pattern Overlay */}
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+              
+              <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col justify-end h-full">
+                <div className="flex items-center gap-2 text-white/80 text-xs font-bold uppercase tracking-wider mb-1">
+                  <Sparkles size={12} />
+                  <span>Welcome to Forever</span>
+                </div>
+                <h2 className="text-white font-serif font-bold text-2xl tracking-tight leading-none">
+                  Information
+                </h2>
+              </div>
+              
+              {/* Floating Close Button */}
+              <button 
+                onClick={() => setInfoFloaterOpen(false)}
+                className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full shadow-lg shadow-purple-900/30 flex items-center justify-center text-purple-600 hover:bg-white hover:scale-110 hover:shadow-purple-900/40 transition-all duration-200 border border-purple-100/50"
+              >
+                <X size={16} strokeWidth={2.5} className="text-purple-600" />
+              </button>
+            </div>
+
+            {/* Navigation Tabs */}
+            <div className="bg-white border-b border-slate-100 px-2 py-3 overflow-x-auto no-scrollbar shrink-0">
+              <div className="flex gap-1">
+                {[
+                  { id: 'guide', label: 'Guide', icon: BookOpen },
+                  { id: 'safety', label: 'Safety', icon: Shield },
+                  { id: 'rules', label: 'Rules', icon: AlertCircle },
+                  { id: 'terms', label: 'Terms', icon: FileText },
+                  { id: 'feedback', label: 'Feedback', icon: MessageSquarePlus }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveInfoTab(tab.id as any)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-1 justify-center relative overflow-hidden ${
+                      activeInfoTab === tab.id
+                        ? 'bg-purple-50 text-purple-700 shadow-sm ring-1 ring-purple-100'
+                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <tab.icon size={14} className={activeInfoTab === tab.id ? 'stroke-[2.5px]' : ''} />
+                    {tab.label}
+                    {activeInfoTab === tab.id && (
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500/50 rounded-full"></div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="p-0 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 max-h-[calc(80vh-200px)]">
+              {/* Guide Content */}
+              {activeInfoTab === 'guide' && (
+                <div className="p-6 space-y-6 animate-fade-in">
+                  <div className="text-center mb-2">
+                    <h3 className="text-xl font-serif font-bold text-slate-800">Your Journey</h3>
+                    <p className="text-sm text-slate-500 leading-relaxed mt-2 px-2">
+                      Forever is a sanctuary for digital memories attached to the physical world. Leave a part of yourself in the places that matter.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {[
+                        { num: 1, title: "Explore", desc: "Drift through the map or search for meaningful spots.", color: "bg-indigo-100 text-indigo-600" },
+                        { num: 2, title: "Leave a Mark", desc: "Pin a memory to a specific bench, corner, or room.", color: "bg-purple-100 text-purple-600" },
+                        { num: 3, title: "Poetic Polish", desc: "Let our AI refine your words into something timeless.", color: "bg-pink-100 text-pink-600" }
+                    ].map((step, i) => (
+                        <div key={i} className="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-sm border border-slate-100/50 hover:border-purple-100 transition-colors">
+                          <div className={`w-8 h-8 rounded-full ${step.color} flex items-center justify-center font-bold text-sm shrink-0`}>{step.num}</div>
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-800">{step.title}</h4>
+                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">{step.desc}</p>
+                          </div>
+                        </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Safety Content */}
+              {activeInfoTab === 'safety' && (
+                <div className="p-6 space-y-6 animate-fade-in">
+                  <div className="bg-teal-50 p-5 rounded-2xl border border-teal-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Shield className="text-teal-600" size={20} />
+                      <h4 className="text-base font-bold text-teal-900">Safety First</h4>
+                    </div>
+                    <p className="text-xs text-teal-700 leading-relaxed opacity-90">
+                      Forever is designed to be a safe, private space. We prioritize your anonymity and data security above all else.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex gap-4 p-3 hover:bg-white rounded-xl transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                        <div className="w-2 h-2 rounded-full bg-teal-500"></div>
+                      </div>
+                      <div>
+                        <strong className="block text-slate-800 text-sm font-bold mb-1">Anonymous by Choice</strong>
+                        <p className="text-slate-500 text-xs leading-relaxed">You control your identity. Share your name only when you want to.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-4 p-3 hover:bg-white rounded-xl transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                        <div className="w-2 h-2 rounded-full bg-teal-500"></div>
+                      </div>
+                      <div>
+                        <strong className="block text-slate-800 text-sm font-bold mb-1">No Tracking</strong>
+                        <p className="text-slate-500 text-xs leading-relaxed">We do not store your live location history. Only the specific coordinates of notes you save.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Rules Content */}
+              {activeInfoTab === 'rules' && (
+                <div className="p-6 space-y-5 animate-fade-in">
+                  <div className="bg-rose-50 p-4 rounded-2xl border border-rose-100 text-rose-900">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle size={18} />
+                      <h4 className="font-bold text-sm">Community Guidelines</h4>
+                    </div>
+                    <p className="text-xs leading-relaxed opacity-90">
+                      This is a shared space for emotional connection. Let's keep it safe and respectful for everyone.
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                      <strong className="block mb-1 text-sm text-slate-800">🚫 Zero Tolerance</strong>
+                      <p className="text-xs text-slate-500">Hate speech, bullying, doxxing, explicit content, or spam will result in an immediate ban.</p>
+                    </div>
+                    
+                    <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                      <strong className="block mb-1 text-sm text-slate-800">⚠️ Respect Locations</strong>
+                      <p className="text-xs text-slate-500">Be mindful that public places may have different meanings for others. Keep content appropriate.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Terms Content */}
+              {activeInfoTab === 'terms' && (
+                <div className="p-6 space-y-5 animate-fade-in">
+                  <h3 className="text-lg font-serif font-bold text-slate-800 px-1">Terms of Service</h3>
+                  <div className="text-xs text-slate-500 space-y-4 leading-relaxed text-justify bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p>
+                      By using <strong>Forever</strong>, you agree to these terms. This platform is provided "as is" for the purpose of sharing emotional connections to locations.
+                    </p>
+                    <p>
+                      <strong>1. User Content:</strong> You retain ownership of the memories you post, but you grant Forever a license to display them on the platform. You are solely responsible for the content you upload.
+                    </p>
+                    <p>
+                      <strong>2. Liability:</strong> Forever is not liable for any actions taken based on the notes found on the map. Do not use this app for emergency services.
+                    </p>
+                    <p>
+                      <strong>3. Content Removal:</strong> We reserve the right to remove any content that violates our Community Rules or is deemed inappropriate, without prior notice.
+                    </p>
+                  </div>
+                  <div className="text-[10px] text-slate-400 text-center pt-2">
+                    Made with 🤍 Forever App &copy; 2025 by July
+                  </div>
+                </div>
+              )}
+
+              {/* Feedback Content */}
+              {activeInfoTab === 'feedback' && (
+                <div className="h-full flex flex-col animate-fade-in">
+                  <div className="flex-1 flex flex-col p-6">
+                    <div className="mb-6">
+                      <h3 className="text-lg font-serif font-bold text-slate-800">Help us grow</h3>
+                      <p className="text-xs text-slate-500 mt-1">We read every single note you send.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-4 gap-2">
+                        {[
+                          { id: 'idea', label: 'Idea', icon: Lightbulb },
+                          { id: 'issue', label: 'Issue', icon: Bug },
+                          { id: 'love', label: 'Love', icon: Heart },
+                          { id: 'other', label: 'Other', icon: HelpCircle }
+                        ].map(cat => (
+                          <button
+                            key={cat.id}
+                            className={`flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl border transition-all duration-200 ${
+                              activeInfoTab === cat.id 
+                                ? 'bg-purple-50 border-purple-200 text-purple-700 shadow-sm ring-1 ring-purple-100' 
+                                : 'bg-white border-slate-100 text-slate-500 hover:border-purple-100 hover:text-purple-600'
+                            }`}
+                          >
+                            <cat.icon size={18} />
+                            <span className="text-[10px] font-bold">{cat.label}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      <textarea 
+                        placeholder="Share your thoughts, ideas, or report issues..."
+                        className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-300 resize-none font-sans shadow-sm transition-all min-h-[120px]"
+                      />
+
+                      <button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-4 rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-purple-900/20">
+                        Send Message
+                      </button>
+
+                      <div className="flex items-center gap-2 text-[10px] text-slate-400 px-1">
+                        <MessageSquarePlus size={12} />
+                        <span>Your feedback helps us improve Forever</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* Desktop/Tablet Button Container - Original Positions */}
+      <div className="hidden md:block">
+        {/* Info/Guide Floater */}
+        <div className="pointer-events-auto">
+          <InfoFloater />
+        </div>
+
+        {/* Create Memory Button */}
+        {!selectedLocation && !isInitialLoading && (
+          <div className="absolute bottom-[calc(6rem+env(safe-area-inset-bottom))] md:bottom-[calc(4rem+env(safe-area-inset-bottom))] lg:bottom-8 left-1/2 -translate-x-1/2 z-[500] pointer-events-auto">
+            <button
+              onClick={handleCreateNoteButtonClick}
+              className={`flex items-center gap-2 px-5 py-3 md:px-6 md:py-3.5 rounded-full shadow-xl shadow-purple-900/20 hover:scale-105 active:scale-95 transition-all group ring-4 ring-white/30 text-white ${isAdmin ? 'bg-gradient-to-r from-amber-500 to-orange-600' : 'bg-gradient-to-r from-purple-600 to-indigo-600'}`}
+            >
+              {isAdmin ? <ShieldCheck size={18} className="fill-white/20" /> : <PenTool size={18} className="fill-white/20" />}
+              <span className="font-bold tracking-wide text-sm md:text-base hidden min-[350px]:inline whitespace-nowrap">
+                {isAdmin ? 'Leave Admin Note' : 'Leave a Note'}
+              </span>
+            </button>
+          </div>
+        )}
+
+        {/* Random Note Button Container with Hint */}
+        {!selectedLocation && !isInitialLoading && notes.length > 0 && (
+          <div className="absolute bottom-[calc(6rem+env(safe-area-inset-bottom))] md:bottom-[calc(4rem+env(safe-area-inset-bottom))] lg:bottom-8 right-[calc(1rem+env(safe-area-inset-right))] md:right-[calc(1rem+env(safe-area-inset-right))] lg:right-8 z-[500] flex flex-col items-end gap-3 pointer-events-none">
+            
+            {/* Animated Hint Bubble */}
+            {!hasClickedRandom && showRandomHint && (
+              <div className="bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-white/50 animate-float origin-bottom-right mb-1 mr-1 pointer-events-auto relative">
+                <div className="text-sm font-serif font-semibold text-purple-900/80 whitespace-nowrap">
+                  Drift to a random memory...
+                </div>
+                {/* Arrow */}
+                <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white/80 border-b border-r border-white/50 rotate-45 backdrop-blur-md"></div>
+              </div>
+            )}
+            
+            <button
+              onClick={handleRandomNote}
+              className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 rounded-full shadow-xl shadow-purple-900/20 hover:scale-105 active:scale-95 transition-all group ring-4 ring-white/30 text-white bg-gradient-to-r from-purple-600 to-indigo-600"
+            >
+              <Shuffle size={16} className="fill-white/20" />
+              <span className="font-bold tracking-wide text-sm whitespace-nowrap">Random Note</span>
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Create Note Modal */}
       {selectedLocation && (
