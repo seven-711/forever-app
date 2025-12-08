@@ -709,6 +709,9 @@ const App: React.FC = () => {
                         </div>
                     ))}
                   </div>
+                  <div className="text-[10px] text-slate-400 text-center pt-2">
+                    Made with 🤍 Forever App &copy; 2025 by July
+                  </div>
                 </div>
               )}
 
@@ -746,6 +749,9 @@ const App: React.FC = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="text-[10px] text-slate-400 text-center pt-2">
+                    Made with 🤍 Forever App &copy; 2025 by July
+                  </div>                 
                 </div>
               )}
 
@@ -847,6 +853,9 @@ const App: React.FC = () => {
                         <MessageSquarePlus size={12} />
                         <span>Your feedback helps us improve Forever</span>
                       </div>
+                      <div className="text-[10px] text-slate-400 text-center pt-2">
+                    Made with 🤍 Forever App &copy; 2025 by July
+                  </div>
                     </div>
                   </div>
                 </div>
