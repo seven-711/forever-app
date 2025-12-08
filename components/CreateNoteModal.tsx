@@ -66,19 +66,14 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({ location, onClose, on
   };
 
   return (
-    // Mobile: Bottom Sheet, Desktop: Side Panel
-    <div className="absolute bottom-0 left-0 right-0 z-[1000] p-0 md:p-6 md:w-[450px] md:top-0 md:bottom-auto md:left-auto md:h-screen animate-fade-in flex items-end md:items-center pointer-events-none">
-      <div className="bg-white/95 md:bg-white/90 backdrop-blur-xl border-t md:border border-white/50 rounded-t-3xl md:rounded-3xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] md:shadow-2xl md:shadow-purple-900/10 overflow-hidden w-full max-h-[85vh] md:max-h-full flex flex-col transition-all pointer-events-auto">
+    // Centered Floating Modal
+    <div className="absolute inset-0 z-[1000] flex items-center justify-center p-4 pointer-events-none">
+      <div className="w-full max-w-lg bg-white/95 backdrop-blur-xl border border-white/60 rounded-3xl shadow-2xl shadow-purple-900/20 overflow-hidden flex flex-col pointer-events-auto animate-fade-in max-h-[85vh] transition-all transform">
         
-        {/* Mobile Drag Handle */}
-        <div className="md:hidden w-full flex justify-center pt-3 pb-1">
-            <div className="w-12 h-1.5 bg-slate-200 rounded-full"></div>
-        </div>
-
         {/* Header - Simplified */}
-        <div className="p-4 md:p-5 flex items-center justify-between border-b border-slate-100 bg-white/50">
+        <div className="p-4 md:p-5 flex items-center justify-between border-b border-slate-100 bg-white/50 shrink-0">
           <div className="flex-1 pr-4 min-w-0">
-            <div className="flex items-center gap-2 text-lg md:text-xl font-bold text-slate-800 font-serif tracking-tight">
+            <div className="flex items-center gap-2 text-lg font-bold text-slate-800 font-serif tracking-tight">
                 <PenTool size={18} className="text-purple-600 flex-shrink-0" />
                 <span>New Memory</span>
             </div>
@@ -89,16 +84,17 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({ location, onClose, on
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 md:p-5 flex-1 flex flex-col gap-4 md:gap-5 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-4 md:p-5 flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
           
           <div className="flex-1 relative flex flex-col gap-4">
              {/* Text Area */}
-             <div className="relative min-h-[120px] md:min-h-[140px] flex-1">
+             <div className="relative min-h-[120px] flex-shrink-0">
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Leave a part of yourself here..."
-                  className="w-full h-full bg-slate-50 border border-slate-200 rounded-2xl p-4 pb-12 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-300 resize-none transition-all font-serif text-base md:text-lg leading-relaxed shadow-inner"
+                  className="w-full h-32 md:h-40 bg-slate-50 border border-slate-200 rounded-2xl p-4 pb-12 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-300 resize-none transition-all font-serif text-base leading-relaxed shadow-inner"
+                  autoFocus
                 />
                 
                 <div className="absolute bottom-4 right-4 flex gap-2">
@@ -117,7 +113,7 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({ location, onClose, on
 
              {/* Image Preview Area */}
              {selectedImage && (
-                <div className="relative w-full h-32 md:h-40 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 group">
+                <div className="relative w-full h-32 md:h-40 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 group flex-shrink-0">
                     <img src={selectedImage} alt="Memory preview" className="w-full h-full object-cover opacity-90" />
                     <button 
                         type="button"
@@ -133,7 +129,7 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({ location, onClose, on
              )}
           </div>
 
-          <div className="space-y-4 pb-safe md:pb-0">
+          <div className="space-y-4 pt-2 shrink-0">
             {/* Action Bar */}
             <div className="flex gap-3">
                  {/* Photo Button (Conditioned on Login) */}
@@ -196,7 +192,7 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({ location, onClose, on
             <button
               type="submit"
               disabled={!text.trim()}
-              className="w-full py-3.5 md:py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-purple-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.98]"
+              className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-purple-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.98]"
             >
               <Send size={18} />
               Save Note
