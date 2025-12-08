@@ -614,7 +614,6 @@ const App: React.FC = () => {
         )}
       </div>
 
-      Mobile InfoFloater Modal
       {infoFloaterOpen && (
         <div className="md:hidden fixed inset-0 z-[999] animate-fade-in">
           {/* Backdrop */}
