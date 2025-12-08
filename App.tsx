@@ -614,7 +614,7 @@ const App: React.FC = () => {
         )}
       </div>
 
-      {/* Mobile InfoFloater Modal */}
+      Mobile InfoFloater Modal
       {infoFloaterOpen && (
         <div className="md:hidden fixed inset-0 z-[999] animate-fade-in">
           {/* Backdrop */}
@@ -624,7 +624,7 @@ const App: React.FC = () => {
           />
           
           {/* Floating Modal Content */}
-          <div className="absolute left-4 right-4 top-[58%] -translate-y-1/2 h-[80vh] max-h-[600px] bg-white/95 backdrop-blur-2xl border border-white/60 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-[2rem] overflow-hidden animate-scale-in">
+          <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 h-[500px] bg-white/95 backdrop-blur-2xl border border-white/60 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-[2rem] overflow-hidden animate-scale-in">
             {/* Enhanced Header */}
             <div className="relative h-28 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 shrink-0 overflow-hidden">
               {/* Abstract Shapes */}
@@ -683,7 +683,7 @@ const App: React.FC = () => {
             </div>
 
             {/* Content Area */}
-            <div className="p-0 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 max-h-[calc(80vh-200px)]">
+            <div className="p-0 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 max-h-[320px]">
               {/* Guide Content */}
               {activeInfoTab === 'guide' && (
                 <div className="p-6 space-y-6 animate-fade-in">
@@ -772,6 +772,9 @@ const App: React.FC = () => {
                       <strong className="block mb-1 text-sm text-slate-800">⚠️ Respect Locations</strong>
                       <p className="text-xs text-slate-500">Be mindful that public places may have different meanings for others. Keep content appropriate.</p>
                     </div>
+                  </div>
+                  <div className="text-[10px] text-slate-400 text-center pt-2">
+                    Made with 🤍 Forever App &copy; 2025 by July
                   </div>
                 </div>
               )}
