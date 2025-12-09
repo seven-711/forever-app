@@ -189,9 +189,7 @@ const InfoFloater: React.FC = () => {
                   ))}
                 </div>
                 
-                <div className="text-[10px] text-slate-400 text-center pt-2">
-                    Made with 🤍 Forever App &copy; 2025 by July
-                </div>
+                {/*Deleted footer*/}
               </div>
             )}
 
