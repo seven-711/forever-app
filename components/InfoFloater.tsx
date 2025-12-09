@@ -5,10 +5,8 @@ import { submitFeedback } from '../services/supabaseService';
 type Tab = 'guide' | 'safety' | 'rules' | 'terms' | 'feedback';
 type FeedbackCategory = 'idea' | 'issue' | 'love' | 'other';
 
-const InfoFloater: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen: externalIsOpen, onClose }) => {
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
-  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
-  const setIsOpen = externalIsOpen !== undefined ? onClose : setInternalIsOpen;
+const InfoFloater: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('guide');
   
   // Feedback State
@@ -80,12 +78,10 @@ const InfoFloater: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isO
         onClick={() => setIsOpen(!isOpen)}
         className={`
           fixed z-[910] 
-          /* Mobile: Bottom Left */
-          bottom-[calc(6rem+env(safe-area-inset-bottom))] left-[calc(1.25rem+env(safe-area-inset-left))] p-3.5
-          /* Tablet: Bottom Left */
-          md:bottom-[calc(4rem+env(safe-area-inset-bottom))] md:left-[calc(1.25rem+env(safe-area-inset-left))]
-          /* Desktop: Bottom Left */
-          lg:bottom-8 lg:left-4 lg:px-5 lg:py-3
+          /* Responsive Mobile Positioning: Safe Area Aware */
+          bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-[calc(1.25rem+env(safe-area-inset-left))] p-3.5
+          /* Desktop */
+          md:bottom-8 md:left-4 md:px-5 md:py-3
           
           flex items-center gap-2.5
           rounded-full shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out
@@ -275,7 +271,7 @@ const InfoFloater: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isO
                   </p>
                 </div>
                 <div className="text-[10px] text-slate-400 text-center pt-2">
-                    Made with 🤍 Forever App &copy; 2025 by July
+                    Forever App &copy; 2025
                 </div>
               </div>
             )}
