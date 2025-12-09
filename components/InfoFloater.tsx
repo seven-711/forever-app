@@ -188,6 +188,10 @@ const InfoFloater: React.FC = () => {
                       </div>
                   ))}
                 </div>
+                
+                <div className="text-[10px] text-slate-400 text-center pt-2">
+                    Made with 🤍 Forever App &copy; 2025 by July
+                </div>
               </div>
             )}
 
@@ -224,6 +228,10 @@ const InfoFloater: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="text-[10px] text-slate-400 text-center pt-2">
+                    Made with 🤍 Forever App &copy; 2025 by July
+                </div>
               </div>
             )}
 
@@ -250,6 +258,10 @@ const InfoFloater: React.FC = () => {
                     <p className="text-xs text-slate-500">Be mindful that public places may have different meanings for others. Keep content appropriate.</p>
                   </div>
                 </div>
+
+                <div className="text-[10px] text-slate-400 text-center pt-2">
+                    Made with 🤍 Forever App &copy; 2025 by July
+                </div>
               </div>
             )}
 
@@ -271,7 +283,7 @@ const InfoFloater: React.FC = () => {
                   </p>
                 </div>
                 <div className="text-[10px] text-slate-400 text-center pt-2">
-                    Forever App &copy; 2025
+                    Made with 🤍 Forever App &copy; 2025 by July
                 </div>
               </div>
             )}
@@ -295,6 +307,10 @@ const InfoFloater: React.FC = () => {
                         >
                             Send another message
                         </button>
+
+                        <div className="text-[10px] text-slate-400 text-center pt-8">
+                            Made with 🤍 Forever App &copy; 2025 by July
+                        </div>
                      </div>
                  ) : (
                      <div className="flex-1 flex flex-col p-6">
@@ -362,6 +378,10 @@ const InfoFloater: React.FC = () => {
                                 )}
                             </button>
                          </form>
+
+                         <div className="text-[10px] text-slate-400 text-center pt-2">
+                            Made with 🤍 Forever App &copy; 2025 by July
+                        </div>
                      </div>
                  )}
               </div>
