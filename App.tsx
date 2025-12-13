@@ -562,8 +562,8 @@ const App: React.FC = () => {
           <button
             onClick={() => setInfoFloaterOpen(!infoFloaterOpen)}
             className={`flex items-center justify-center w-12 h-12 rounded-full shadow-xl shadow-purple-900/20 hover:scale-110 active:scale-95 transition-all duration-300 group ring-4 ring-white/30 relative overflow-hidden ${infoFloaterOpen
-                ? 'bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 ring-4 ring-purple-200/50 shadow-purple-200/50 scale-105'
-                : 'bg-white/90 hover:bg-white text-slate-600 hover:text-purple-700 hover:shadow-purple-900/20 hover:ring-purple-100/50'
+              ? 'bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 ring-4 ring-purple-200/50 shadow-purple-200/50 scale-105'
+              : 'bg-white/90 hover:bg-white text-slate-600 hover:text-purple-700 hover:shadow-purple-900/20 hover:ring-purple-100/50'
               }`}
           >
             {/* Subtle gradient overlay */}
@@ -603,16 +603,7 @@ const App: React.FC = () => {
         {/* Random Note Button */}
         {!selectedLocation && !isInitialLoading && notes.length > 0 && (
           <div className="pointer-events-auto relative">
-            {/* Animated Hint Bubble for Mobile */}
-            {!hasClickedRandom && showRandomHint && (
-              <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg border border-white/50 animate-bounce w-max pointer-events-none z-50">
-                <div className="text-xs font-serif font-bold text-purple-900/80 whitespace-nowrap">
-                  Drift to a memory
-                </div>
-                {/* Arrow */}
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/90 rotate-45"></div>
-              </div>
-            )}
+
 
             <button
               onClick={handleRandomNote}
